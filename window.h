@@ -5,6 +5,10 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include "IComp.h"
+
+#include <QString>              //Парсинг XML
+#include <QXmlStreamReader>
+#include <QFile>
 QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
 QT_END_NAMESPACE
@@ -28,8 +32,12 @@ public:
     Window(QWidget *parent = nullptr);
     ~Window();
 
-private:
+private slots:
+    void on_pushButton_clicked();
 
+private:
+    IComp* data=nullptr;
+    void Parse();
     Ui::Window *ui;
 };
 #endif // WINDOW_H

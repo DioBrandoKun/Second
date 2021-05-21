@@ -9,9 +9,12 @@ class IComp
 public:
     IComp(IShow* show):m_show(show){};
     IShow* m_show;                      //Поведение вспомогательного окна
+    IComp* m_father=nullptr;
     virtual void add(IComp*)      =0;
+    virtual void remove()         =0;
     virtual void remove(IComp*)   =0;
     virtual void tree()           =0;
+    virtual ~IComp();
 };
 
 struct Initials
@@ -42,6 +45,11 @@ class Human:public IComp
         QString help = QString::fromStdString(salary);
         m_salary = help.toLong();
     }
+    void remove()  override
+    {
+        m_father->remove(this);
+        this->~Human();
+    }
 };
 
 
@@ -63,10 +71,20 @@ public:
 
     void add(IComp* newElem)  override
     {
+        newElem->m_father=this;
         m_elemnts.push_back(newElem);
     }
-
-    void remove(IComp* newElem)  override
+    void remove()  override
+    {
+        for(auto* elems:m_elemnts)
+        {
+            elems->remove();
+        }
+        if(m_father!=nullptr)
+            m_father->remove(this);
+        this->~Departament();
+    }
+    void remove(IComp* newElem)
     {
         auto remove_iter=std::remove(m_elemnts.begin(),m_elemnts.end(),newElem);    //Вот тут может неправильно удалять
         m_elemnts.erase(remove_iter,m_elemnts.end());
