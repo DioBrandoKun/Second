@@ -1,16 +1,5 @@
 QT       += core gui
 
-QMAKE_EXTRA_TARGETS += before_build makefilehook
-
-makefilehook.target = $(MAKEFILE)
-makefilehook.depends = .beforebuild
-
-PRE_TARGETDEPS += .beforebuild
-
-before_build.target = .beforebuild
-before_build.depends = FORCE
-before_build.commands = chcp 1251
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -21,16 +10,21 @@ CONFIG += c++11
 
 SOURCES += \
     Accept.cpp \
+    ICounter.cpp \
+    dialog.cpp \
     main.cpp \
     window.cpp
 
 HEADERS += \
     Accept.h \
     IComp.h \
+    ICounter.h \
     ProperItem.h \
+    dialog.h \
     window.h
 
 FORMS += \
+    dialog.ui \
     window.ui
 
 # Default rules for deployment.

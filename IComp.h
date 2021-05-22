@@ -6,19 +6,24 @@
 #include <vector>
 #include <qDebug>
 #include "ProperItem.h"
-
+#include "ICounter.h"
 class IComp
 {
 public:
     IComp(IShow* show):m_show(show){};
     IShow* m_show;                      //Поведение вспомогательного окна
     IComp* m_father=nullptr;
+    virtual void accept(ICounter*)          =0;
     virtual void add(IComp*)                =0;
     virtual void remove()                   =0;
     virtual void remove(IComp*)             =0;
     virtual void tree(std::vector<std::pair<int,ProperItem*>>&, int num=0)           =0;
     virtual ~IComp()                        {};
     virtual void out()                      =0;
+    virtual void Show(Dialog* window)
+    {
+        m_show->showForm(this,window);
+    }
 };
 
 struct Initials
@@ -82,15 +87,22 @@ public:
         #include <QDebug>
         qDebug()<<m_init.Name;
     }
+    virtual void accept(ICounter* counter) override
+    {
+       counter->Count(this);
+    }
+    QStringList GetData()
+    {
+        return {m_init.Name,m_init.Ser,m_init.Pat,m_pos,QString::number(m_salary)};
+    }
 };
 
 
 class Departament:public IComp
 {
 public:
-    QString     m_name;   //Название
-    int         m_num;    //Количество сотрудников
-    double      m_salary; //Средняя зарплата
+    QString     m_name;                 //Название
+    bool        m_removed=false;        //Условие удаленности, пришлось добавить для основного офиса
     std::vector<IComp*> m_elemnts;
     Departament(QString& name,
                 IShow* depart= new IDepart):IComp(depart), m_name(name)
@@ -108,13 +120,13 @@ public:
     }
     void remove()  override
     {
+        m_removed=true;
         for(int i=0;i<m_elemnts.size();i++)
         {
             m_elemnts[i]->remove();
         }
         if(m_father!=nullptr)
             m_father->remove(this);
-        this->~Departament();
     }
     void remove(IComp* newElem) override
     {
@@ -133,6 +145,14 @@ public:
             elems->tree(out,num+1);
         }
     }
+    virtual void accept(ICounter* counter) override
+    {
+        counter->Count(this);
+        for(auto* elems:m_elemnts)
+        {
+            elems->accept(counter);
+        }
+    }
     virtual void out() override
     {
 
@@ -142,6 +162,7 @@ public:
             elems->out();
         }
     }
+    QString GetName() {return m_name;}
 };
 
 #endif // ICOMP_H
