@@ -14,9 +14,17 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = nullptr);
     ~Dialog();
+    QStringList getData();
+    void SuperFormRead();
     void HumanForm(QStringList list);
+    void HumanFormRead();
     void DepartForm(QString);
+    void DepartFormRead();
+private slots:
+    void on_magic_clicked();
+
 private:
+    bool state=0;
     Ui::Dialog *ui;
 };
 

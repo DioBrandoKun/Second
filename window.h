@@ -10,6 +10,7 @@
 #include <QXmlStreamReader>
 #include <QFile>
 
+#include <QMap>
 #include "dialog.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
@@ -38,7 +39,14 @@ private slots:
 
     void ShowForm();
 
+    void ShowFormRejected();
+
+    void ShowFormAdd();
+
+    void on_pushButton_3_clicked();
+
 private:
+    QMap<QTreeWidgetItem*,IComp*> m_pointer;
     Departament* data=nullptr;
     void ShowTree();
     void Parse();

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <QString>
 #include <vector>
+#include <QTreeWidgetItem>
 #include <qDebug>
-#include "ProperItem.h"
 #include "ICounter.h"
 class IComp
 {
@@ -14,16 +14,30 @@ public:
     IShow* m_show;                      //Поведение вспомогательного окна
     IComp* m_father=nullptr;
     virtual void accept(ICounter*)          =0;
-    virtual void add(IComp*)                =0;
     virtual void remove()                   =0;
     virtual void remove(IComp*)             =0;
-    virtual void tree(std::vector<std::pair<int,ProperItem*>>&, int num=0)           =0;
+    virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>&,
+                      QMap<QTreeWidgetItem*,IComp*>& m_pointer
+                      ,int num=0)           =0;
     virtual ~IComp()                        {};
     virtual void out()                      =0;
-    virtual void Show(Dialog* window)
+    void Show(Dialog* window)
     {
         m_show->showForm(this,window);
     }
+    void Chage(QStringList change)
+    {
+        m_show->changeData(this,change);
+    }
+    void showReadForm(Dialog* window)
+    {
+        m_show->showReadForm(this,window);
+    }
+    void Add(QStringList list)
+    {
+        m_show->addClick(this,list);
+    }
+
 };
 
 struct Initials
@@ -66,21 +80,20 @@ public:
         m_father->remove(this);
         this->~Human();
     }
-    void add(IComp* newElem)  override
-    {
-
-    }
     void remove(IComp* newElem) override
     {
 
     }
-    virtual void tree(std::vector<std::pair<int,ProperItem*>>& out, int num=0) override
+    virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>& out,
+                      QMap<QTreeWidgetItem*,IComp*>& m_pointer
+                      ,int num=0) override
     {
         QTreeWidgetItem* item=new QTreeWidgetItem();//m_tree
         item->setText(num,m_init.Name);
-        ProperItem* transform=(ProperItem*) item;
-        transform->SetData(this);
-        out.push_back({num,transform});
+        //ProperItem* transform=(ProperItem*) item;
+        //transform->SetData(this);
+        m_pointer.insert(item,this);
+        out.push_back({num,item});
     }
     virtual void out() override
     {
@@ -109,7 +122,7 @@ public:
     {
     }
 
-    void add(IComp* newElem)  override
+    void add(IComp* newElem)
     {
         newElem->m_father=this;
         m_elemnts.push_back(newElem);
@@ -133,16 +146,19 @@ public:
         auto remove_iter=std::remove(m_elemnts.begin(),m_elemnts.end(),newElem);    //Вот тут может неправильно удалять
         m_elemnts.erase(remove_iter,m_elemnts.end());
     }
-    virtual void tree(std::vector<std::pair<int,ProperItem*>>& out, int num=0) override
+    virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>& out,
+                      QMap<QTreeWidgetItem*,IComp*>& m_pointer
+                      ,int num=0) override
     {
         QTreeWidgetItem* item=new QTreeWidgetItem();
         item->setText(num,m_name);
-        ProperItem* transform=(ProperItem*) item;
-        transform->SetData(this);
-        out.push_back({num,transform});
+        //ProperItem* transform=(ProperItem*) item;
+        //transform->SetData(this);
+        m_pointer.insert(item,this);
+        out.push_back({num,item});
         for(auto* elems:m_elemnts)
         {
-            elems->tree(out,num+1);
+            elems->tree(out,m_pointer,num+1);
         }
     }
     virtual void accept(ICounter* counter) override

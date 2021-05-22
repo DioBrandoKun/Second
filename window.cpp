@@ -6,15 +6,6 @@ Window::Window(QWidget *parent)
     , ui(new Ui::Window)
 {
     ui->setupUi(this);
-    //m_tree=this->findChild<QTreeWidget*>("tree");
-    //if(m_tree==nullptr)
-    //    return;
-    QTreeWidgetItem* item=new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr), QStringList(QString("item: %1")));//m_tree
-    ProperItem*      item2=(ProperItem*) item;
-    //ui->tree->setColumnCount(1);
-
-    //ui->tree->insertTopLevelItem(0,item2);
-
 }
 #include <qDebug>
 void Window::Parse()
@@ -101,9 +92,13 @@ Window::~Window()
 }
 void Window::ShowTree()
 {
-    std::vector<std::pair<int,ProperItem*>> tree_vec;
-    data->tree(tree_vec);
-    ui->tree->setColumnCount(3);
+    ui->m_text->clear();
+    ui->tree->clear();
+    if(data==nullptr) return;
+    std::vector<std::pair<int,QTreeWidgetItem*>> tree_vec;
+    m_pointer.clear();
+    data->tree(tree_vec,m_pointer);
+    ui->tree->setColumnCount(10);
     for(auto& pair:  tree_vec)
     {
         ui->tree->addTopLevelItem(pair.second);
@@ -120,35 +115,40 @@ void Window::on_pushButton_clicked()
 
 void Window::on_remove_clicked()
 {
-    auto* item=(ProperItem*)ui->tree->currentItem();
-    item->m_data->remove();
+    if(ui->tree->currentItem()==nullptr) return;
+    auto* item=m_pointer[ui->tree->currentItem()];
+    item->remove();
     if(data->m_removed==true)
     {
-        delete data;
         data=nullptr;
     }
-    else
-    {
-        delete item;
-    }
-    ui->tree->clear();
-    ui->m_text->clear();
-    if(data!=nullptr)
-        ShowTree();
+    ShowTree();
 }
 
 void Window::ShowForm()
 {
-    this->show();
+    auto* selecItem=m_pointer[ui->tree->currentItem()];
+    selecItem->Chage(m_info->getData());
+
+    m_info=nullptr;
     this->setEnabled(true);
-    delete m_info;
+    ShowTree();
+}
+
+
+
+void Window::ShowFormRejected()
+{
+    this->setEnabled(true);
+
     m_info=nullptr;
 }
 
+
 void Window::on_tree_itemClicked(QTreeWidgetItem *item, int column)
 {
-    auto* selecItem=(ProperItem*)item;
-    selecItem->m_data->m_show->show(selecItem->m_data,ui->m_text);
+    auto* selecItem=m_pointer[item];
+    selecItem->m_show->show(selecItem,ui->m_text);
 }
 
 void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -156,8 +156,33 @@ void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
     this->m_info = new Dialog();
     this->setEnabled(false);
     connect(this->m_info,SIGNAL(accepted()),this,SLOT(ShowForm()));
+    connect(this->m_info,SIGNAL(rejected()),this,SLOT(ShowFormRejected()));
 
-    this->hide();
-    auto* selecItem=(ProperItem*)item;
-    selecItem->m_data->m_show->showForm(selecItem->m_data,this->m_info);
+    auto* selecItem=m_pointer[item];
+    selecItem->m_show->showForm(selecItem,this->m_info);
+}
+
+void Window::ShowFormAdd()
+{
+    auto* selecItem=m_pointer [ui->tree->currentItem()];
+    ui->tree->clear();
+
+    selecItem->Add(m_info->getData());
+
+    this->setEnabled(true);
+    m_info=nullptr;
+
+    ShowTree();
+}
+
+void Window::on_pushButton_3_clicked()
+{
+    if(ui->tree->currentItem()==nullptr) return;
+    this->m_info = new Dialog();
+    this->setEnabled(false);
+    connect(this->m_info,SIGNAL(accepted()),this,SLOT(ShowFormAdd()));
+    connect(this->m_info,SIGNAL(rejected()),this,SLOT(ShowFormRejected()));
+
+    auto* selecItem=m_pointer [ui->tree->currentItem()];
+    selecItem->showReadForm(this->m_info);
 }
