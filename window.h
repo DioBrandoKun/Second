@@ -13,15 +13,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
 QT_END_NAMESPACE
 
-class ProperItem: public QTreeWidgetItem
-{
-public:
-    IComp* m_data=nullptr;
-    void SetData(IComp* newData)
-    {
-        m_data=newData;
-    }
-};
+
 
 
 class Window : public QMainWindow
@@ -37,6 +29,7 @@ private slots:
 
 private:
     IComp* data=nullptr;
+    void ShowTree();
     void Parse();
     Ui::Window *ui;
 };
