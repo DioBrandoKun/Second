@@ -30,7 +30,7 @@ public:
     //@QMap<QTreeWidgetItem*,IComp*> сохраняет ссылку для отображения элемента на его данные
     virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>&,
                       QMap<QTreeWidgetItem*,IComp*>& m_pointer
-                      ,int num=0)           =0;
+                      ,int& size, int num=0)           =0;
     virtual ~IComp()                        {};
 
     //Метод для создания копии
@@ -122,15 +122,16 @@ public:
     }
     virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>& out,
                       QMap<QTreeWidgetItem*,IComp*>& m_pointer
-                      ,int num=0) override
+                      ,int& size,int num=0) override
     {
+        if(num>size) size=num;
         QTreeWidgetItem* item=new QTreeWidgetItem();
         item->setText(num,m_name);
         m_pointer.insert(item,this);
         out.push_back({num,item});
         for(auto* elems:m_elemnts)
         {
-            elems->tree(out,m_pointer,num+1);
+            elems->tree(out,m_pointer,size,num+1);
         }
     }
     virtual void accept(ICounter* counter) override
@@ -212,8 +213,9 @@ public:
     }
     virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>& out,
                       QMap<QTreeWidgetItem*,IComp*>& m_pointer
-                      ,int num=0) override
+                      ,int& size,int num=0) override
     {
+        if(num>size) size=num;
         QTreeWidgetItem* item=new QTreeWidgetItem();//m_tree
         item->setText(num,m_init.Name);
         m_pointer.insert(item,this);

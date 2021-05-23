@@ -10,7 +10,9 @@ Window::Window(QWidget *parent)
 #include <qDebug>
 void Window::Parse()
 {
-    QFile file("tst.xml");
+    QString tmp = QFileDialog::getOpenFileName(0, "Choose file", "", "*.xml");
+    if (tmp == 0) return;
+    QFile file(tmp);
     if(!file.open(QFile::ReadOnly | QFile::Text)){
         exit(0);
     }
@@ -92,8 +94,9 @@ void Window::ShowTree()
     if(data==nullptr || data->m_removed) return;
     std::vector<std::pair<int,QTreeWidgetItem*>> tree_vec;
     m_pointer.clear();
-    data->tree(tree_vec,m_pointer);
-    ui->tree->setColumnCount(10);
+    int count=1;
+    data->tree(tree_vec,m_pointer,count);
+    ui->tree->setColumnCount(count+1);      //Так как счет от 0
     for(auto& pair:  tree_vec)
     {
         ui->tree->addTopLevelItem(pair.second);

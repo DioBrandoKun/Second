@@ -9,7 +9,7 @@
 #include <QString>              //Парсинг XML
 #include <QXmlStreamReader>
 #include <QFile>
-
+#include <QFileDialog>
 #include <QMap>
 #include "dialog.h"
 #include "memento.h"
