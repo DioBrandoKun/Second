@@ -13,6 +13,7 @@ SOURCES += \
     ICounter.cpp \
     dialog.cpp \
     main.cpp \
+    memento.cpp \
     window.cpp
 
 HEADERS += \
@@ -20,6 +21,7 @@ HEADERS += \
     IComp.h \
     ICounter.h \
     dialog.h \
+    memento.h \
     window.h
 
 FORMS += \

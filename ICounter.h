@@ -4,7 +4,7 @@ class Departament;
 class Human;
 
 
-class ICounter//Посетитель для подразделений
+class ICounter                  //Посетитель для элементов
 {
 
 public:
@@ -15,17 +15,22 @@ public:
 
 class InfoView:public ICounter
 {
-    int         m_num       =0; //Считает кол-во сотрудников
-    double      all_salary  =0; //Считает всю зарплату
-    int         m_dep       =0; //Считает кол-во отделов
+    int         m_num       =0; //Кол-во сотрудников
+    double      all_salary  =0; //Вся зарплата для отдела
+    int         m_dep       =0; //Кол-во отделов
 public:
     InfoView(){};
+    //Считает количество департаментов
     virtual void Count(Departament*);
 
+    //Считает количество людей и их зарплату
     virtual void Count(Human* obj);
 
+    //Возвращает число департаментов
     int  GetDep(){return m_dep;}
+    //Возвращает число людей
     int  GetCount(){return m_num;}
+    //Возвращает среднюю зарплату
     double GetMid(){return all_salary/m_num;}
 };
 

@@ -29,9 +29,7 @@ void Window::Parse()
         {
             if (root.name() == "department")            //Парсинг отдела
             {
-                qDebug()<<root.name();
                 QString dep_name = root.attributes().value("name").toString();
-                qDebug()<<dep_name;
                 if(dep!=nullptr)                        //Отдел добавляется в офис, только если начался парсинг нового отдела
                     data->add(dep);
                 dep= new Departament(dep_name,new IDepart());
@@ -39,7 +37,6 @@ void Window::Parse()
             }
             if (root.name() == "employment")            //Парсинг человека
             {
-                qDebug()<<root.name();
                 root.readNextStartElement();
                 QString ser;
                 QString name;
@@ -74,7 +71,6 @@ void Window::Parse()
                 hum = new Human(name,ser,mid_name,func,salar);
                 if(dep!=nullptr)
                     dep->add(hum);
-                qDebug()<<ser<<name<<mid_name<<func<<salar;
                 continue;
             }
 
@@ -83,7 +79,6 @@ void Window::Parse()
     if(dep!=nullptr)                //Под конец парсинга остается один офис
         data->add(dep);
     ShowTree();
-    qDebug()<<"End";
 }
 
 Window::~Window()
@@ -94,7 +89,7 @@ void Window::ShowTree()
 {
     ui->m_text->clear();
     ui->tree->clear();
-    if(data==nullptr) return;
+    if(data==nullptr || data->m_removed) return;
     std::vector<std::pair<int,QTreeWidgetItem*>> tree_vec;
     m_pointer.clear();
     data->tree(tree_vec,m_pointer);
@@ -115,6 +110,7 @@ void Window::on_pushButton_clicked()
 
 void Window::on_remove_clicked()
 {
+    save_back();
     if(ui->tree->currentItem()==nullptr) return;
     auto* item=m_pointer[ui->tree->currentItem()];
     item->remove();
@@ -123,10 +119,12 @@ void Window::on_remove_clicked()
         data=nullptr;
     }
     ShowTree();
+
 }
 
 void Window::ShowForm()
 {
+    save_back();
     auto* selecItem=m_pointer[ui->tree->currentItem()];
     selecItem->Chage(m_info->getData());
 
@@ -164,8 +162,8 @@ void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 
 void Window::ShowFormAdd()
 {
+    save_back();
     auto* selecItem=m_pointer [ui->tree->currentItem()];
-    ui->tree->clear();
 
     selecItem->Add(m_info->getData());
 
@@ -185,4 +183,40 @@ void Window::on_pushButton_3_clicked()
 
     auto* selecItem=m_pointer [ui->tree->currentItem()];
     selecItem->showReadForm(this->m_info);
+}
+
+
+
+IMemento* Window::save()
+{
+    Departament* memory=new Departament(data->m_name,new ICenter());
+    data->clone(memory,true);
+    Memento* out =new Memento(memory,this);
+    return out;
+}
+
+void Window::save_back()
+{
+
+    if(data==nullptr || data->m_removed) return;
+    MementoCollector::clearAhead();                 //Каждый раз когда мы делаем новое действие, мы создаем новую цепочку Ahead
+    ui->ahead->setEnabled(false);
+    MementoCollector::addBack(save());
+    if(MementoCollector::getBackSize()>0) ui->back->setEnabled(true);
+}
+
+void Window::on_back_clicked()
+{
+    MementoCollector::addAhead(save());
+    MementoCollector::restoreBack();
+    if(MementoCollector::getBackSize()==0) ui->back->setEnabled(false);
+    if(MementoCollector::getAheadSize()>0) ui->ahead->setEnabled(true);
+}
+
+void Window::on_ahead_clicked()
+{
+    MementoCollector::addBack(save());
+    MementoCollector::restoreAhead();
+    if(MementoCollector::getBackSize()>0) ui->back->setEnabled(true);
+    if(MementoCollector::getAheadSize()==0) ui->ahead->setEnabled(false);
 }
