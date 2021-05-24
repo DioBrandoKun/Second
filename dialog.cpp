@@ -12,18 +12,32 @@ Dialog::~Dialog()
 {
     delete ui;
 }
-
-QStringList Dialog::getData()
+bool Dialog::getData(QStringList& inp)
 {
+    QRegExp num("^[0-9]{1,}$");
+    QRegExp word("^[а-яА-ЯёЁa-zA-Z]{1,}$");
+    QString name=ui->firstBody->toPlainText();
+    QString ser=ui->secondBody->toPlainText();
+    QString pat=ui->thirdBody->toPlainText();
+    QString func=ui->foruthBody->toPlainText();
+    QString salar=ui->fifthBody->toPlainText();
+    bool out= word.exactMatch(name);
+    //Человек
     if(!state)
-    return {ui->firstBody->toPlainText(),
-            ui->secondBody->toPlainText(),
-            ui->thirdBody->toPlainText(),
-            ui->foruthBody->toPlainText(),
-            ui->fifthBody->toPlainText(),
-    };
+    {
+
+        out+=   word.exactMatch(ser)+
+                word.exactMatch(pat)+
+                word.exactMatch(func)+
+                num.exactMatch(salar);
+        inp=QStringList({name,ser,pat,func,salar});
+        return out;
+    }//Отдел
     else
-        return {ui->firstBody->toPlainText()};
+    {
+        inp=QStringList({name});
+        return out;
+    }
 }
 
 void Dialog::HumanForm(QStringList list)

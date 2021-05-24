@@ -207,7 +207,6 @@ public:
         m_init.Ser   =   nullptr;
         m_init.Pat   =   nullptr;
         delete m_show;
-        qDebug()<<"Good boy";
     }
     void remove()  override
     {

@@ -132,12 +132,17 @@ void Window::on_remove_clicked()
 
 void Window::ShowForm()
 {
-    save_back();
-    auto* selecItem=m_pointer[ui->tree->currentItem()];
-    selecItem->Chage(m_info->getData());
 
+    auto* selecItem=m_pointer[ui->tree->currentItem()];
+    QStringList list_data;
+    auto res=m_info->getData(list_data);
     m_info=nullptr;
     this->setEnabled(true);
+    if(!res) return;
+    save_back();
+    selecItem->Chage(list_data);
+
+
     ShowTree();
 }
 
@@ -170,24 +175,34 @@ void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 
 void Window::ShowFormAdd()
 {
-    save_back();
+
     auto* selecItem=m_pointer [ui->tree->currentItem()];
-
-    selecItem->Add(m_info->getData());
-
+    QStringList list_out;
+    auto res=m_info->getData(list_out);
+    if(!res) return;
     this->setEnabled(true);
     m_info=nullptr;
+    save_back();
+    selecItem->Add(list_out);
+
+
 
     ShowTree();
 }
 
 void Window::ShowFormCreate()
 {
-    save_back();
-    auto data=m_info->getData();
+
+    QStringList list_data;
+    auto res=m_info->getData(list_data);
     this->setEnabled(true);
     m_info=nullptr;
-    this->data =new Departament(data[0],new ICenter());
+    if(!res)
+    {
+        return;
+    }
+    save_back();
+    this->data =new Departament(list_data[0],new ICenter());
     ShowTree();
 }
 //Add действие

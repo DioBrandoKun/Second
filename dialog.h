@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QAbstractButton>
+#include <QRegExp>
 namespace Ui {
 class Dialog;
 }
@@ -17,7 +18,7 @@ public:
     ~Dialog();
 
     //Возвращает заполненную или измененную информацию
-    QStringList getData();
+    bool getData(QStringList& inp);
 
     //Вызывается для элемента с поведением ICenter
     //Позволяет менять тип формы с добавления человека
