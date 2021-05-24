@@ -11,6 +11,8 @@ public:
     virtual void Count(Departament*)=0;
 
     virtual void Count(Human* obj)=0;
+
+    virtual ~ICounter()           {};
 };
 
 class InfoView:public ICounter
@@ -31,7 +33,12 @@ public:
     //Возвращает число людей
     int  GetCount(){return m_num;}
     //Возвращает среднюю зарплату
-    double GetMid(){return all_salary/m_num;}
+    double GetMid()
+    {
+        return m_num==0?0:all_salary/m_num;
+    }
+
+    virtual ~InfoView(){};
 };
 
 #endif // ICOUNTER_H

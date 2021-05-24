@@ -49,6 +49,8 @@ private slots:
     void ShowFormAdd();
     //Нажатие на кнопку добавить, вывод диалогового окна
     void on_pushButton_3_clicked();
+    //Создание главного отдела, когда форма пустая
+    void ShowFormCreate();
 
     void on_back_clicked();
 
@@ -58,17 +60,28 @@ private:
     //Класс воспоминаний, нужен для восстановления данных
     class Memento:public IMemento
     {
-        Window*    object;
         Departament* data;
+        Window*    object;
+
      public:
-        Memento(Departament* info,Window* obj):data(info),object(obj){};
+        Memento(Departament* info,Window* obj):object(obj),data(info){};
         void restoreData() override
         {
-            object->data->remove();
+            if(object->data!=nullptr)
+                object->data->remove();
             object->data=nullptr;
-            object->data=new Departament(data->m_name,new ICenter());
-            data->clone(object->data,true);
+            if(data!=nullptr)
+            {
+                object->data=new Departament(data->m_name,new ICenter());
+                data->clone(object->data,true);
+            }
             object->ShowTree();
+        }
+        virtual ~Memento()
+        {
+            data->remove();
+            data=nullptr;
+            object=nullptr;
         }
     };
     friend Memento;

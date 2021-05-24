@@ -56,7 +56,7 @@ public:
     //Метод для создания формы для добавления к объекту
     void showReadForm(Dialog* window)
     {
-        m_show->showReadForm(this,window);
+        m_show->showReadForm(window);
     }
 
     //Метод для добавления элемента
@@ -101,19 +101,24 @@ public:
     }
     virtual ~Departament()
     {
+        m_father  = nullptr;
         m_name    = nullptr;
+        m_elemnts.erase(m_elemnts.begin(),m_elemnts.end());
+        delete m_show;
     }
     void remove()  override
     {
         m_removed=true;
-        for(int i=0;i<m_elemnts.size();i++)
+        for(unsigned i=0;i<m_elemnts.size();i++)
         {
             m_elemnts[i]->remove();
         }
-        m_elemnts.erase(m_elemnts.begin(),m_elemnts.end());
         if(m_father!=nullptr)
             m_father->remove(this);
+        this->~Departament();
     }
+    //После данного вызова у элемента IComp* будет вызван деструктор
+    //Никита не надо её трогать!!
     void remove(IComp* newElem) override
     {
         auto remove_iter=std::remove(m_elemnts.begin(),m_elemnts.end(),newElem);
@@ -151,6 +156,7 @@ public:
             elems->out();
         }
     }
+    bool Deleted() {return m_removed;}
     virtual void clone(IComp* evm, bool root=false) override
     {
         if(root)
@@ -200,9 +206,12 @@ public:
         m_init.Name  =   nullptr;
         m_init.Ser   =   nullptr;
         m_init.Pat   =   nullptr;
+        delete m_show;
+        qDebug()<<"Good boy";
     }
     void remove()  override
     {
+        if(m_father!=nullptr)
         m_father->remove(this);
         m_father=nullptr;
         this->~Human();

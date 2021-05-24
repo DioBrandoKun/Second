@@ -14,7 +14,7 @@ void Window::Parse()
     if (tmp == 0) return;
     QFile file(tmp);
     if(!file.open(QFile::ReadOnly | QFile::Text)){
-        exit(0);
+        return;
     }
     QString name="Головной офис";
     data = new Departament(name,new ICenter());         //Создание основного офиса
@@ -106,8 +106,13 @@ void Window::ShowTree()
 void Window::on_pushButton_clicked()
 {
     if(data!=nullptr)
+    {
         data->remove();
+        data=nullptr;
+    }
     ui->tree->clear();
+    MementoCollector::clearAhead();
+    MementoCollector::claerBack();
     Parse();
 }
 
@@ -176,12 +181,32 @@ void Window::ShowFormAdd()
     ShowTree();
 }
 
+void Window::ShowFormCreate()
+{
+    save_back();
+    auto data=m_info->getData();
+    this->setEnabled(true);
+    m_info=nullptr;
+    this->data =new Departament(data[0],new ICenter());
+    ShowTree();
+}
+//Add действие
 void Window::on_pushButton_3_clicked()
 {
-    if(ui->tree->currentItem()==nullptr) return;
+    if(ui->tree->currentItem()==nullptr &&  data!=nullptr) return;
+
     this->m_info = new Dialog();
     this->setEnabled(false);
+    if(data==nullptr)
+    {
+        connect(this->m_info,SIGNAL(accepted()),this,SLOT(ShowFormCreate()));
+        connect(this->m_info,SIGNAL(rejected()),this,SLOT(ShowFormRejected()));
+        m_info->show();
+        m_info->DepartFormRead();
+        return;
+    }
     connect(this->m_info,SIGNAL(accepted()),this,SLOT(ShowFormAdd()));
+
     connect(this->m_info,SIGNAL(rejected()),this,SLOT(ShowFormRejected()));
 
     auto* selecItem=m_pointer [ui->tree->currentItem()];
@@ -192,6 +217,7 @@ void Window::on_pushButton_3_clicked()
 
 IMemento* Window::save()
 {
+    if(data==nullptr) return new Memento(nullptr,this);;
     Departament* memory=new Departament(data->m_name,new ICenter());
     data->clone(memory,true);
     Memento* out =new Memento(memory,this);
@@ -200,8 +226,6 @@ IMemento* Window::save()
 
 void Window::save_back()
 {
-
-    if(data==nullptr || data->m_removed) return;
     MementoCollector::clearAhead();                 //Каждый раз когда мы делаем новое действие, мы создаем новую цепочку Ahead
     ui->ahead->setEnabled(false);
     MementoCollector::addBack(save());

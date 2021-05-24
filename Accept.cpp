@@ -112,20 +112,18 @@ void IDepart::changeData(IComp *obj, QStringList data)
     item->m_name=data[0];
 }
 
-void IHuman::showReadForm(IComp *obj,Dialog* mainForm)
+void IHuman::showReadForm(Dialog* mainForm)
 {
    mainForm->reject();
    return;
 }
-void ICenter::showReadForm(IComp *obj,Dialog* mainForm)
+void ICenter::showReadForm(Dialog* mainForm)
 {
-    Departament* item=(Departament *) obj;
     mainForm->SuperFormRead();
     mainForm->show();
 }
-void IDepart::showReadForm(IComp *obj,Dialog* mainForm)
+void IDepart::showReadForm(Dialog* mainForm)
 {
-    Departament* item=(Departament *) obj;
     mainForm->HumanFormRead();
     mainForm->show();
 }

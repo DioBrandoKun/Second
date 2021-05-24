@@ -6,6 +6,7 @@ class IMemento
 {
 public:
    virtual void restoreData()=0;
+    virtual ~IMemento(){};
 };
 
 class MementoCollector
@@ -45,8 +46,16 @@ public:
        return m_ahead.size();
    }
 
+   static void claerBack()
+   {
+    for(size_t i=0;i< m_back.size();i++)
+        delete m_back[i];
+    m_back.erase(m_back.begin(),m_back.end());
+   }
    static void clearAhead()
    {
+    for(size_t i=0;i< m_ahead.size();i++)
+        delete m_ahead[i];
     m_ahead.erase(m_ahead.begin(),m_ahead.end());
    }
 };

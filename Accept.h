@@ -19,7 +19,7 @@ public:
     //Отвечает за отображении формы для добавления элемента
     //@IComp ссылка на элемент
     //@Dialog ссылка на элемент форомчки
-    virtual void showReadForm(IComp *,Dialog*)       =0;
+    virtual void showReadForm(Dialog*)       =0;
 
     //Отвечает за изменение информации элемента
     //@IComp ссылка на элемент
@@ -30,6 +30,8 @@ public:
     //@IComp ссылка на родительский элемент
     //@QStringList список данных для нового элемента
     virtual void addClick(IComp *, QStringList)      =0;
+
+    virtual ~IShow()                                 {};
 };
 
 class IHuman:public IShow
@@ -38,9 +40,10 @@ public:
     IHuman(){};
     virtual void show(IComp *, QTextBrowser*) override;
     virtual void showForm(IComp *,Dialog*) override;
-    virtual void showReadForm(IComp *,Dialog*) override;
+    virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual ~IHuman() {};
 };
 
 class IDepart:public IShow
@@ -49,9 +52,10 @@ public:
     IDepart(){};
     virtual void show(IComp * depart, QTextBrowser*) override;
     virtual void showForm(IComp *,Dialog*) override;
-    virtual void showReadForm(IComp *,Dialog*) override;
+    virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual ~IDepart() {};
 };
 
 class ICenter:public IShow
@@ -60,9 +64,10 @@ public:
     ICenter(){};
     virtual void show(IComp *, QTextBrowser*) override;
     virtual void showForm(IComp *,Dialog*) override;
-    virtual void showReadForm(IComp *,Dialog*) override;
+    virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual ~ICenter() {};
 };
 
 
