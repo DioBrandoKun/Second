@@ -178,3 +178,32 @@ void IDepart::addClick(IComp *obj, QStringList data)
             data[2],data[3],data[4]);
     item->add(newbie);
 }
+void IHuman::wrieXML(IComp * obj, QString &out, QString shift)
+{
+    Human* item = (Human*) obj;
+    QString insideShift=shift+'\t';
+    out+=shift+"<employment>"+'\n';
+    out+=insideShift+"<surname>"+item->m_init.Ser+"</surname>"+'\n';
+    out+=insideShift+"<name>"+item->m_init.Name+"</name>"+'\n';
+    out+=insideShift+"<middleName>"+item->m_init.Pat+"</middleName>"+'\n';
+    out+=insideShift+"<function>"+item->m_pos+"</function>"+'\n';
+    out+=insideShift+"<salary>"+QString::number(item->m_salary)+"</salary>"+'\n';
+    out+=shift+"</employment>"+'\n';
+}
+
+void IDepart::wrieXML(IComp *obj, QString &out, QString shift)
+{
+    Departament* item=(Departament *) obj;
+    out+=shift+"<department name="+'"'+item->GetName()+'"'+">\n";
+    out+=shift+'\t'+"<employments>\n";
+    item->wrieXMLall(out,shift+'\t'+'\t');
+    out+=shift+'\t'+"</employments>\n";
+    out+=shift+"</department>\n";
+}
+void ICenter::wrieXML(IComp *obj, QString &out, QString shift)
+{
+    Departament* item=(Departament *) obj;
+    out+="<departments>\n";
+    item->wrieXMLall(out,shift+'\t');
+    out+="</departments>";
+}

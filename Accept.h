@@ -31,6 +31,12 @@ public:
     //@QStringList список данных для нового элемента
     virtual void addClick(IComp *, QStringList)      =0;
 
+    //Отвечает за сохранение в xml
+    //@IComp ссылка на объект
+    //@QString out результат XML данных
+    //@shift сдвиг табуляций
+    virtual void wrieXML(IComp *,QString& out,QString shift) =0;
+
     virtual ~IShow()                                 {};
 };
 
@@ -43,6 +49,7 @@ public:
     virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual void wrieXML(IComp *,QString& out,QString shift) override;
     virtual ~IHuman() {};
 };
 
@@ -55,6 +62,7 @@ public:
     virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual void wrieXML(IComp *,QString& out,QString shift) override;
     virtual ~IDepart() {};
 };
 
@@ -67,6 +75,7 @@ public:
     virtual void showReadForm(Dialog*) override;
     virtual void changeData(IComp *, QStringList) override;
     virtual void addClick(IComp *, QStringList)  override;
+    virtual void wrieXML(IComp *,QString& out,QString shift) override;
     virtual ~ICenter() {};
 };
 

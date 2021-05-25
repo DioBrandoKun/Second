@@ -7,15 +7,17 @@ Window::Window(QWidget *parent)
 {
     ui->setupUi(this);
 }
-#include <qDebug>
+
 void Window::Parse()
 {
     QString tmp = QFileDialog::getOpenFileName(0, "Choose file", "", "*.xml");
     if (tmp == 0) return;
     QFile file(tmp);
     if(!file.open(QFile::ReadOnly | QFile::Text)){
+        filename="";
         return;
     }
+    filename=tmp;
     QString name="Головной офис";
     data = new Departament(name,new ICenter());         //Создание основного офиса
     Departament*    dep=nullptr;
@@ -91,7 +93,7 @@ void Window::ShowTree()
 {
     ui->m_text->clear();
     ui->tree->clear();
-    if(data==nullptr || data->m_removed) return;
+    if(data==nullptr || data->Deleted()) return;
     std::vector<std::pair<int,QTreeWidgetItem*>> tree_vec;
     m_pointer.clear();
     int count=1;
@@ -110,9 +112,13 @@ void Window::on_pushButton_clicked()
         data->remove();
         data=nullptr;
     }
+    else if(data->Deleted())
+        data=nullptr;
     ui->tree->clear();
     MementoCollector::clearAhead();
     MementoCollector::claerBack();
+    ui->back->setEnabled(false);
+    ui->ahead->setEnabled(false);
     Parse();
 }
 
@@ -122,7 +128,7 @@ void Window::on_remove_clicked()
     if(ui->tree->currentItem()==nullptr) return;
     auto* item=m_pointer[ui->tree->currentItem()];
     item->remove();
-    if(data->m_removed==true)
+    if(data->Deleted()==true)
     {
         data=nullptr;
     }
@@ -159,7 +165,7 @@ void Window::ShowFormRejected()
 void Window::on_tree_itemClicked(QTreeWidgetItem *item, int column)
 {
     auto* selecItem=m_pointer[item];
-    selecItem->m_show->show(selecItem,ui->m_text);
+    selecItem->ShowInfo(ui->m_text);
 }
 
 void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -170,7 +176,7 @@ void Window::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
     connect(this->m_info,SIGNAL(rejected()),this,SLOT(ShowFormRejected()));
 
     auto* selecItem=m_pointer[item];
-    selecItem->m_show->showForm(selecItem,this->m_info);
+    selecItem->Show(this->m_info);
 }
 
 void Window::ShowFormAdd()
@@ -232,8 +238,9 @@ void Window::on_pushButton_3_clicked()
 
 IMemento* Window::save()
 {
-    if(data==nullptr) return new Memento(nullptr,this);;
-    Departament* memory=new Departament(data->m_name,new ICenter());
+    if(data==nullptr) return new Memento(nullptr,this);
+    QString name=data->GetName();
+    Departament* memory=new Departament(name,new ICenter());
     data->clone(memory,true);
     Memento* out =new Memento(memory,this);
     return out;
@@ -261,4 +268,36 @@ void Window::on_ahead_clicked()
     MementoCollector::restoreAhead();
     if(MementoCollector::getBackSize()>0) ui->back->setEnabled(true);
     if(MementoCollector::getAheadSize()==0) ui->ahead->setEnabled(false);
+}
+
+void Window::on_save_clicked()
+{
+    if(data==nullptr || data->Deleted() || filename=="") return;
+    QFile file(filename);
+    if(!file.open(QFile::WriteOnly | QFile::Text)){
+        return;
+    }
+
+    QString out="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    data->WriteXML(out,"");
+    file.write(out.toStdString().c_str());
+
+    file.close();
+}
+
+void Window::on_SaveAs_clicked()
+{
+   if(data==nullptr || data->Deleted()) return;
+   QString tmp = QFileDialog::getSaveFileName(0, "Choose file", "", "*.xml");
+   if(tmp=="") return;
+   QFile file(tmp);
+   if(!file.open(QFile::WriteOnly | QFile::Text)){
+       return;
+   }
+
+   QString out="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+   data->WriteXML(out,"");
+   file.write(out.toStdString().c_str());
+
+   file.close();
 }

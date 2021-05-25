@@ -56,6 +56,10 @@ private slots:
 
     void on_ahead_clicked();
 
+    void on_save_clicked();
+
+    void on_SaveAs_clicked();
+
 private:
     //Класс воспоминаний, нужен для восстановления данных
     class Memento:public IMemento
@@ -72,14 +76,16 @@ private:
             object->data=nullptr;
             if(data!=nullptr)
             {
-                object->data=new Departament(data->m_name,new ICenter());
+                QString name=data->GetName();
+                object->data=new Departament(name,new ICenter());
                 data->clone(object->data,true);
             }
             object->ShowTree();
         }
         virtual ~Memento()
         {
-            data->remove();
+            if(data!=nullptr && !data->Deleted())
+                data->remove();
             data=nullptr;
             object=nullptr;
         }
@@ -91,6 +97,8 @@ private:
 
     //Сохранение текущего состояния
     IMemento* save();
+
+    QString filename="";
 
     //Массив хранящий для каждого элемента дерева, его ссылку на данные
     //При попытке расширить класс QTreeWidgetItem появились проблемы
