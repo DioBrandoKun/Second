@@ -212,8 +212,9 @@ void Window::ShowFormAdd()
     auto* selecItem=m_pointer [ui->tree->currentItem()];
     QStringList list_out;
     auto res=m_info->getData(list_out);
-    if(!res) return;
     this->setEnabled(true);
+    if(!res) return;
+
     m_info=nullptr;
     save_back();
     selecItem->Add(list_out);
@@ -325,7 +326,7 @@ void Window::on_SaveAs_clicked()
    if(data==nullptr || data->Deleted()) return;
    QString tmp = QFileDialog::getSaveFileName(0, "Choose file", "", "*.xml");
    if(tmp=="") return;
-   if(filename=="") filename=tmp;
+   filename=tmp;
    QFile file(tmp);
    if(!file.open(QFile::WriteOnly | QFile::Text)){
        return;
