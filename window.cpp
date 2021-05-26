@@ -152,6 +152,7 @@ void Window::on_pushButton_clicked()
 
 void Window::on_remove_clicked()
 {
+    if(data==nullptr || data->Deleted()) return;
     save_back();
     if(ui->tree->currentItem()==nullptr) return;
     auto* item=m_pointer[ui->tree->currentItem()];
