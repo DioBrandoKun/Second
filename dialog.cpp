@@ -16,19 +16,21 @@ bool Dialog::getData(QStringList& inp)
 {
     QRegExp num("^[0-9]{1,}$");
     QRegExp word("^[а-яА-ЯёЁa-zA-Z]{1,}$");
+    QRegExp wordSpace("^[а-яА-ЯёЁa-zA-Z ]{1,}$");
     QString name=ui->firstBody->toPlainText();
     QString ser=ui->secondBody->toPlainText();
     QString pat=ui->thirdBody->toPlainText();
     QString func=ui->foruthBody->toPlainText();
     QString salar=ui->fifthBody->toPlainText();
-    bool out= word.exactMatch(name);
+
     //Человек
     if(!state)
     {
 
-        out+=   word.exactMatch(ser)+
-                word.exactMatch(pat)+
-                word.exactMatch(func)+
+       bool out=   word.exactMatch(name)&&
+                word.exactMatch(ser)&&
+                word.exactMatch(pat)&&
+                wordSpace.exactMatch(func)&&
                 num.exactMatch(salar);
         inp=QStringList({name,ser,pat,func,salar});
         return out;
@@ -36,6 +38,7 @@ bool Dialog::getData(QStringList& inp)
     else
     {
         inp=QStringList({name});
+        bool out=   wordSpace.exactMatch(name);
         return out;
     }
 }

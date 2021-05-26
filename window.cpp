@@ -6,8 +6,9 @@ Window::Window(QWidget *parent)
     , ui(new Ui::Window)
 {
     ui->setupUi(this);
-}
 
+}
+#include <QDebug>
 void Window::Parse()
 {
     QString tmp = QFileDialog::getOpenFileName(0, "Choose file", "", "*.xml");
@@ -23,30 +24,54 @@ void Window::Parse()
     Departament*    dep=nullptr;
     Human*          hum=nullptr;
 
+    QRegExp num("^[0-9]{1,}$");
+    QRegExp word("^[а-яА-ЯёЁa-zA-Z]{1,}$");
+    QRegExp wordSpace("^[а-яА-ЯёЁa-zA-Z ]{1,}$");
+
     QXmlStreamReader root (&file);
     while (!root.atEnd() && !root.hasError())
     {
         QXmlStreamReader::TokenType token = root.readNext();
+
         if (token == QXmlStreamReader::StartDocument)
             continue;
-        if (token == QXmlStreamReader::StartElement)
+        if (token == QXmlStreamReader::EndElement)
+        {
+            if(root.name() == "department")
+            {
+                if(dep!=nullptr)                        //Отдел добавляется в офис, только если он был удачно создан
+                    data->add(dep);
+                dep=nullptr;
+            }
+            else if(root.name() == "employment")
+            {
+                if(hum!=nullptr)
+                {
+                    if(dep!=nullptr)
+                        dep->add(hum);
+                    else data->add(hum);
+                    hum = nullptr;
+                }
+            }
+        }
+        else if (token == QXmlStreamReader::StartElement)
         {
             if (root.name() == "department")            //Парсинг отдела
             {
                 QString dep_name = root.attributes().value("name").toString();
-                if(dep!=nullptr)                        //Отдел добавляется в офис, только если начался парсинг нового отдела
-                    data->add(dep);
+                bool right=   wordSpace.exactMatch(dep_name);
+                if(!right) continue;
                 dep= new Departament(dep_name,new IDepart());
                 continue;
             }
-            if (root.name() == "employment")            //Парсинг человека
+            else if (root.name() == "employment")            //Парсинг человека
             {
                 root.readNextStartElement();
-                QString ser;
-                QString name;
-                QString mid_name;
-                QString func;
-                QString salar;
+                QString ser="";
+                QString name="";
+                QString mid_name="";
+                QString func="";
+                QString salar="";
                 if(root.name() == "surname")
                 {
                     ser=root.readElementText();
@@ -70,18 +95,22 @@ void Window::Parse()
                 if (root.name() == "salary")
                 {
                     salar=root.readElementText();
+                }
+                bool right=word.exactMatch(name)&&
+                        word.exactMatch(ser)&&
+                        word.exactMatch(mid_name)&&
+                        wordSpace.exactMatch(func)&&
+                        num.exactMatch(salar);
+                if(!right)
+                {
                     root.readNextStartElement();
+                    continue;
                 }
                 hum = new Human(name,ser,mid_name,func,salar);
-                if(dep!=nullptr)
-                    dep->add(hum);
-                continue;
             }
 
         }
     }
-    if(dep!=nullptr)                //Под конец парсинга остается один офис
-        data->add(dep);
     ShowTree();
 }
 
@@ -109,11 +138,10 @@ void Window::on_pushButton_clicked()
 {
     if(data!=nullptr)
     {
-        data->remove();
+        if(!data->Deleted())
+            data->remove();
         data=nullptr;
     }
-    else if(data->Deleted())
-        data=nullptr;
     ui->tree->clear();
     MementoCollector::clearAhead();
     MementoCollector::claerBack();
@@ -138,7 +166,6 @@ void Window::on_remove_clicked()
 
 void Window::ShowForm()
 {
-
     auto* selecItem=m_pointer[ui->tree->currentItem()];
     QStringList list_data;
     auto res=m_info->getData(list_data);
@@ -272,7 +299,15 @@ void Window::on_ahead_clicked()
 
 void Window::on_save_clicked()
 {
-    if(data==nullptr || data->Deleted() || filename=="") return;
+    if(data==nullptr || data->Deleted() )
+    {
+        return;
+    }
+    else if(filename=="")
+    {
+        on_SaveAs_clicked();
+        return;
+    }
     QFile file(filename);
     if(!file.open(QFile::WriteOnly | QFile::Text)){
         return;
@@ -290,6 +325,7 @@ void Window::on_SaveAs_clicked()
    if(data==nullptr || data->Deleted()) return;
    QString tmp = QFileDialog::getSaveFileName(0, "Choose file", "", "*.xml");
    if(tmp=="") return;
+   if(filename=="") filename=tmp;
    QFile file(tmp);
    if(!file.open(QFile::WriteOnly | QFile::Text)){
        return;
