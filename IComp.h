@@ -97,7 +97,6 @@ struct Initials
 
 
 
-
 class Departament:public IComp
 {
     friend IDepart;
@@ -125,29 +124,31 @@ public:
     }
     virtual ~Departament()
     {
+        for(unsigned i=0;i<m_elemnts.size();i++)
+        {
+           delete m_elemnts[i];
+        }
+        m_elemnts.erase(m_elemnts.begin(),m_elemnts.end());
         m_father  = nullptr;
         m_name    = nullptr;
-        m_elemnts.erase(m_elemnts.begin(),m_elemnts.end());
         delete m_show;
     }
     void remove()  override
     {
         m_removed=true;
-        for(unsigned i=0;i<m_elemnts.size();i++)
-        {
-            m_elemnts[i]->remove();
-        }
         if(m_father!=nullptr)
             m_father->remove(this);
-        this->~Departament();
     }
-    //После данного вызова у элемента IComp* будет вызван деструктор
-    //Никита не надо её трогать!!
+
     void remove(IComp* newElem) override
     {
-        auto remove_iter=std::remove(m_elemnts.begin(),m_elemnts.end(),newElem);
-        if( remove_iter!= m_elemnts.end())
-        m_elemnts.erase(remove_iter,m_elemnts.end());
+        auto remove_obj =std::find(m_elemnts.begin(),m_elemnts.end(),newElem);
+        if( remove_obj!= m_elemnts.end())
+        {
+            m_elemnts.erase(remove_obj);
+            m_elemnts.shrink_to_fit();
+            delete newElem;
+        }
     }
     virtual void tree(std::vector<std::pair<int,QTreeWidgetItem*>>& out,
                       QMap<QTreeWidgetItem*,IComp*>& m_pointer
@@ -221,6 +222,7 @@ public:
     }
     virtual ~Human()
     {
+        m_father=nullptr;
         m_pos        =   nullptr;
         m_init.Name  =   nullptr;
         m_init.Ser   =   nullptr;
@@ -230,9 +232,7 @@ public:
     void remove()  override
     {
         if(m_father!=nullptr)
-        m_father->remove(this);
-        m_father=nullptr;
-        this->~Human();
+            m_father->remove(this);
     }
     void remove(IComp* newElem) override
     {

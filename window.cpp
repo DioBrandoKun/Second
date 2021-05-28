@@ -139,7 +139,7 @@ void Window::on_pushButton_clicked()
     if(data!=nullptr)
     {
         if(!data->Deleted())
-            data->remove();
+            delete data;
         data=nullptr;
     }
     ui->tree->clear();
@@ -159,6 +159,7 @@ void Window::on_remove_clicked()
     item->remove();
     if(data->Deleted()==true)
     {
+        delete data;
         data=nullptr;
     }
     ShowTree();
